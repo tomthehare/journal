@@ -24,18 +24,53 @@ class SiteManager
 		$password = $_POST["password"];
 
 		$login_result = 
-			$this->GetDatabaseManager()->CheckUserExistence($username, $password);
+			$this->GetDatabaseManager()->CheckUserAndPasswordExistence($username, $password);
 
-		var_dump($login_result);
+		//var_dump($login_result);
 
 		if($login_result->GetSuccessFlag() == TRUE)
 		{
+			//call UpdateLastLoginTimestamp here
+
 			return true;
 		}
 		else
 		{
 			$this->SetError($login_result->GetReason());
 			return false;
+		}
+	}
+
+	function Register()
+	{
+		$proposed_username = $_POST["newUsernameTxt"];
+		$proposed_password1 = $_POST["newPasswordTxt1"];
+		$proposed_password2 = $_POST["newPasswordTxt2"];
+
+		//check passwords to see that they are equal
+		if($proposed_password1 !== $proposed_password2)
+		{
+			$this->SetError("Passwords do not match");
+			return false;
+		}
+
+		//check if the username is already in the database
+		$existence_result = 
+			$this->GetDatabaseManager()->CheckUserExistence($proposed_username);
+
+		if($existence_result->GetSuccessFlag() == TRUE)
+		{
+			$this->SetError("Username already exists");
+			return false;
+		}
+		else
+		{
+			$registration_result =
+				$this->GetDatabaseManager()->RegisterUser($proposed_username, $proposed_password1);
+			
+			$this->SetError($registration_result->GetReason());
+
+			return $registration_result->GetSuccessFlag();
 		}
 	}
 
