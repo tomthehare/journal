@@ -1,0 +1,31 @@
+/* this will be for the login screen */
+
+*{
+	font-family: monospace;
+}
+
+#login_content{
+	width: 40%;
+	margin: 0 auto;
+}
+
+#errors {
+	color: red;
+}
+
+#site_title {
+	font-family: monospace;
+	color: blue;
+	padding-top: 40px;
+	font-size: 5em;
+}
+
+label {
+	font-weight: bold;
+}
+
+#register_label
+{
+	font-weight: bold;
+	font-size: 1.2em;
+}

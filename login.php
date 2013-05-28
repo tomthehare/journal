@@ -15,37 +15,42 @@ if(isset($_POST["submitted"]))
 <html>
 <head>
 	<title>Journal - Login</title>
+	<style type="text/css" media="all">
+		@import "css/login.css";
+	</style>
 </head>
 
 <body>
 
-<h3>Login here</h3>
+<div id="login_content">
+	<div id="site_title">PHP Journal</div>
 
-<div><span name='errors' id='errors'><?php echo $sitemanager->GetErrors(); ?></span></div>
+	<div><span name='errors' id='errors'><?php echo $sitemanager->GetErrors(); ?></span></div>
 
-<form id="loginForm" action="login.php" method="post">
+	<form id="loginForm" action="login.php" method="post">
 
-<input type='hidden' id='submitted' name='submitted' value='1' />
+	<input type='hidden' id='submitted' name='submitted' value='1' />
 
-<label for="username">Username:</label>
-<input type="text" name="username" id="username" maxlength="20" />
+	<label for="username">Username:</label>
+	<input type="text" name="username" id="username" maxlength="20" />
 
-<br />
+	<br />
 
-<label for="password">Password:</label>
-<input type="password" name="password" id="password" maxlength="20" />
+	<label for="password">Password:</label>
+	<input type="password" name="password" id="password" maxlength="20" />
+	<br />
+	<input type='submit' name='submit' value='Submit' />
 
-<input type='submit' name='submit' value='Submit' />
-
-</form>
+	</form>
 
 
-<h3>New to the site?  Register here</h3>
-<form id="regForm" action="register.php" method="get">
+	<div id="register_label">New to the site?  Register here</div>
+	<form id="regForm" action="register.php" method="get">
 
-<input type='submit' name='register' value='Register' />
+	<input type='submit' name='register' value='Register' />
 
-</form>
+	</form>
+</div>
 
 </body>
 

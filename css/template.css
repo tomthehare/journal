@@ -1,0 +1,42 @@
+/*#left_border {
+	float: left;
+	width: 100px;
+}
+
+#main_content {
+}
+
+#top_border {
+	float: top;
+}*/
+
+/* three things are
+	<div id="title_bar_top"></div>
+	<div id="blog_navbar_right"></div>
+	<div id="main_content"></div>
+*/
+
+*{
+	font-family: monospace;
+}
+
+#title_bar_top {
+	width: 100%;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	background-color: blue;
+	color: white;
+	float: top;
+	vertical-align: 50%;
+	font-size: 2em;
+}
+
+#title_bar_top a {
+	color: white;
+}
+
+#main_content {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	padding-left: 20px;
+}
