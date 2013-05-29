@@ -1,11 +1,27 @@
 <?php
 require_once("./siteconfig.php");
+require_once("./blog.php");
 //require_once("./databaseresult.php");
 
 if(isset($_POST["submitted"]))
 {
 	if($sitemanager->Login())
 	{
+		session_start();
+		$_SESSION['username'] = $_POST['username'];
+		$blog_details = $sitemanager->GetBlogAssociatedWithUser($_POST['username']);
+
+		if(isset($blog_details))
+		{
+			$_SESSION['blog_id'] = $blog_details->GetBlogId();
+			$_SESSION['blog_name'] = $blog_details->GetBlogName();
+		}
+		else
+		{
+			$_SESSION['blog_id'] = -1;
+			$_SESSION['blog_name'] = null;
+		}
+
 		$sitemanager->RedirectToURL("userjournal.php");
 	}
 }

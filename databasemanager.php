@@ -1,6 +1,7 @@
 <?PHP
 
 require_once("./DatabaseResult.php");
+require_once("./blog.php");
 
 class DatabaseManager
 {
@@ -123,31 +124,146 @@ class DatabaseManager
 		return $user_exists;
 	}
 
-	function RegisterUser($username, $password)
+	//TODO: add a transaction around these 2 interactions
+	function RegisterUserAndBlog($username, $password, $blog_name)
 	{
-		$result = new DatabaseResult(false, 'Just initialized');
-
-		//insert a new record for new user into database
-		$con = $this->OpenConnection();
-
-		//Prepare a statement
-		$stmt = $con->prepare('insert into `user` (`Username`, `Password`, `DateCreated`) values (?, ?, NOW())');
-		//$current_date = date('o-m-d g:i:s A');
-		$stmt->bind_param('ss', $username, $password);
-
-		if(!$stmt->execute())
+		$insert_user_result = $this->RegisterUser($username, $password);
+		
+		if($insert_user_result->GetSuccessFlag() === true)
 		{
-			$result->SetSuccessFlag(false);
-			$result->SetReason('Execution failed: (' . $stmt->errno . ')' . $stmt->error);
+			return $this->RegisterBlog($username, $blog_name);
 		}
 		else
 		{
-			$result->SetSuccessFlag(true);
-			$result->SetReason('Execution succeeded.');
+			return $insert_user_result;
+		}
+	}
+
+	function RegisterUser($user_name, $password)
+	{
+		$result = new DatabaseResult(false, 'Just initialized');
+
+		//INSERT USER INFORMATION
+		$con = $this->OpenConnection();
+		$query = 'insert into user (`Username`, `Password`, `DateCreated`) values (?, ?, NOW())';
+		
+		//Prepare a statement
+		$stmt = mysqli_stmt_init($con);
+		
+		if(mysqli_stmt_prepare($stmt, $query))
+		{
+			$stmt->bind_param('ss', $user_name, $password);
+
+			if(!$stmt->execute())
+			{
+				$result->SetSuccessFlag(false);
+				$result->SetReason('Execution failed: (' . $stmt->errno . ')' . $stmt->error);
+			}
+			else
+			{
+				$result->SetSuccessFlag(true);
+			}
+			mysqli_stmt_close($stmt);
+		}
+		else
+		{
+			$result->SetSuccessFlag(false);
+			$result->SetReason('Error setting up database statement: ' . $query);
 		}
 
-		return $result;
+		$this->CloseConnection($con);
 
+		return $result;
+	}
+
+	function RegisterBlog($user_name, $blog_name)
+	{
+		$result = new DatabaseResult(false, 'Just initialized');
+
+		$con = $this->OpenConnection();
+		$query = 'insert into blog (`BlogName`, `BlogOwner`, `BlogCreationDate`) values (?, (select `iduser` from user where `username` = ?), NOW())';
+		$stmt = mysqli_stmt_init($con);
+		
+		if(mysqli_stmt_prepare($stmt, $query))
+		{
+			$stmt->bind_param('ss', $blog_name, $user_name);
+
+			if($stmt->execute())
+			{
+				$result->SetSuccessFlag(true);
+			}
+			else
+			{
+				$result->SetSuccessFlag(false);
+				$result->SetReason('Execution failed: (' . $stmt->errno . ')' . $stmt->error);
+			}
+
+			mysqli_stmt_close($stmt);
+		}
+		else
+		{
+			$result->SetSuccessFlag(false);
+			$result->SetReason('Error setting up database statement: ' . $query);
+		}
+
+		$this->CloseConnection($con);
+
+		return $result;
+	}
+
+	function GetBlogAssociatedWithUser($username)
+	{
+		$result = new DatabaseResult(false, 'Just initalized');
+
+		$con = $this->OpenConnection();
+		$query = "select blogs.blogname, blogs.blogowner, blogs.blogcreationdate, blogs.idblog, users.username
+				from blog blogs join user users on blogs.blogowner = users.iduser
+				where users.username = ?";
+		$stmt = mysqli_stmt_init($con);
+
+		if(mysqli_stmt_prepare($stmt, $query))
+		{
+			$stmt->bind_param('s', $username);
+
+			if($stmt->execute())
+			{
+				if(!$db_results = $stmt->get_result())
+				{
+					$result->SetSuccessFlag(false);
+					$result->SetReason("Trouble retrieving results");
+				}
+				else
+				{
+					//var_dump($details = $db_results->fetch_all()[0]);
+					$details = $db_results->fetch_all()[0];
+					$blog = new Blog();
+					$blog->SetBlogName($details[0]);
+					$blog->SetUserId($details[1]);
+					$blog->SetBlogCreationDate($details[2]);
+					$blog->SetBlogId($details[3]);
+					$blog->SetUserName($details[4]);
+
+					var_dump($blog);
+
+					$result->SetSuccessFlag(true);
+					$result->SetPayload($blog);
+				}
+			}
+			else
+			{
+				$result->SetSuccessFlag(false);
+				$result->SetReason("Trouble executing this query: $query");
+			}
+		}
+		else
+		{
+			$result->SetSuccessFlag(false);
+			$result->SetReason("Trouble setting up this query: $query");
+		}
+
+		$this->CloseConnection($con);
+
+		return $result;
 	}
 }
 

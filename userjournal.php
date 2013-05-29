@@ -1,5 +1,11 @@
 <?php
 	require_once("./siteconfig.php");
+
+	session_start();
+	if(!isset($_SESSION['username']))
+	{
+		$sitemanager->RedirectToURL("login.php");
+	}
  ?>
 
 <html>
@@ -12,11 +18,17 @@
 <body>
 
 <div id="title_bar_top">
-	php blog. - <a href="newpost.php">new post</a>
+	<?php echo $_SESSION['blog_name'] ?> - <a href="newpost.php">new post</a>
+	<div id="logOutLink"><a href="logout.php">logout</a></div>
 </div>
+
 <div id="blog_navbar_right"></div>
+
 <div id="main_content">
-	no blogs here.
+	<span id='errors'><?php echo $sitemanager->GetErrors(); ?></span>
+	<?php 
+		echo $sitemanager->GetPosts();
+	?>
 </div>
 
 </body>

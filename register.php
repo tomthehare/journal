@@ -13,6 +13,9 @@ require_once('./siteconfig.php');
 <html>
 <head>
 	<title>PHP Journal - Registration</title>
+	<style type="text/css" media="all">
+		@import "css/template.css";
+	</style>
 </head>
 
 <body>
@@ -20,7 +23,7 @@ require_once('./siteconfig.php');
 <H3>Please register here</h3>
 <form id='regForm' action='register.php' method='post'/>
 	<div id='regErrorsDiv'>
-		<span id='regErrorsSpan'>
+		<span id='errors'>
 			<?php echo $sitemanager->GetErrors(); ?>
 		</span>
 	</div>
@@ -29,6 +32,9 @@ require_once('./siteconfig.php');
 	Password: <input type='password' name='newPasswordTxt1' id='newPasswordTxt1'/>
 	<br />
 	Password again: <input type='password' name='newPasswordTxt2' id='newPasswordTxt2'/>
+	<p />
+
+	Blog title: <input type='text' name='blogTitle' id='blogTitle' />
 	<br />
 	<input type='hidden' name='register_submitted' value='1' />
 

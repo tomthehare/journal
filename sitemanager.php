@@ -2,6 +2,7 @@
 //--- Site manager to handle logic
 require_once("./databasemanager.php");
 require_once("./databaseresult.php");
+require_once("./blog.php");
 
 class SiteManager
 {
@@ -46,11 +47,19 @@ class SiteManager
 		$proposed_username = $_POST["newUsernameTxt"];
 		$proposed_password1 = $_POST["newPasswordTxt1"];
 		$proposed_password2 = $_POST["newPasswordTxt2"];
+		$blog_name = $_POST["blogTitle"];
 
 		//check passwords to see that they are equal
 		if($proposed_password1 !== $proposed_password2)
 		{
 			$this->SetError("Passwords do not match");
+			return false;
+		}
+
+		//check blog name
+		if(is_null($blog_name) || strlen($blog_name) == 0)
+		{
+			$this->SetError("Need a blog name");
 			return false;
 		}
 
@@ -66,11 +75,34 @@ class SiteManager
 		else
 		{
 			$registration_result =
-				$this->GetDatabaseManager()->RegisterUser($proposed_username, $proposed_password1);
+				$this->GetDatabaseManager()->RegisterUserAndBlog($proposed_username, $proposed_password1, $blog_name);
 			
 			$this->SetError($registration_result->GetReason());
 
 			return $registration_result->GetSuccessFlag();
+		}
+	}
+
+	function GetPosts()
+	{
+		return "NO POSTS";
+	}
+
+	function GetBlogAssociatedWithUser($username)
+	{
+		if(!is_null($username))
+		{
+			$result = $this->GetDatabaseManager()->GetBlogAssociatedWithUser($username);
+
+			if($result->GetSuccessFlag() === true)
+			{
+				return $result->GetPayload();
+			}
+			else
+			{
+				$this->SetError($result->GetReason());
+				return null;
+			}
 		}
 	}
 
